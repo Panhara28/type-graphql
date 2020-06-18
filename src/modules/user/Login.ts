@@ -10,7 +10,7 @@ export class LoginResolver {
   async login(
     @Arg("email") email: string,
     @Arg("password") password: string,
-    @Ctx() ctx: MyContext
+    @Ctx() ctx: MyContext,
   ): Promise<User | null> {
     const user = await User.findOne({ where: { email } });
 
@@ -23,8 +23,11 @@ export class LoginResolver {
     if (!valid) {
       return null;
     }
-
-    ctx.req.session!.userId = user.id;
+   
+  
+    ctx.req.session!.userId = user.id
+    console.log(ctx.req.session!.userId);
+    
 
     return user;
   }

@@ -1,32 +1,31 @@
-import 'reflect-metadata';
-import { ApolloServer } from 'apollo-server-express';
-import Express from 'express';
-import { buildSchema } from 'type-graphql';
-import { createConnection } from 'typeorm';
-import { RegisterResolver } from './modules/user/Register';
-import session from 'express-session';
-import connectRedis from 'connect-redis';
-import { redis } from './redis';
-import  cors from 'cors';
-import { LoginResolver } from './modules/user/Login';
+
+import "reflect-metadata";
+import { ApolloServer } from "apollo-server-express";
+import Express from "express";
+import { buildSchema } from "type-graphql";
+import { createConnection } from "typeorm";
+import session from "express-session";
+// import connectRedis from "connect-redis";
+import cors from "cors";
+
+import { RegisterResolver } from "./modules/user/Register";
+// import { redis } from "./redis";
+import { LoginResolver } from "./modules/user/Login";
+
 const main = async () => {
   await createConnection();
 
   const schema = await buildSchema({
-    resolvers: [
-      RegisterResolver,
-      LoginResolver
-    ]
-  })
-  
+    resolvers: [RegisterResolver, LoginResolver]
+  });
   const apolloServer = new ApolloServer({
     schema,
-    context: ({ req }: any) => ({ req})
-  }); 
+    context: ({ req }: any) => ({ req })
+  });
 
   const app = Express();
 
-  const RedisStore = connectRedis(session);
+  // const RedisStore = connectRedis(session);
 
   app.use(
     cors({
@@ -36,15 +35,13 @@ const main = async () => {
   );
 
   app.use(
-    session({
-
-      store: new RedisStore({
-        client: redis as any
-      }),
-
+    session ({
+      // store: new RedisStore({
+      //   client: redis as any
+      // }),
       name: "qid",
-      secret: "aslkdfjoiq12312",
-      resave: false,
+      secret: "123123123123123123123",
+      resave: true,
       saveUninitialized: false,
       cookie: {
         httpOnly: true,
@@ -53,14 +50,12 @@ const main = async () => {
       }
     })
   );
+  
+  apolloServer.applyMiddleware({ app });
 
-  apolloServer.applyMiddleware({ app,  });
-
-
-  app.listen(8080, () =>{
-    console.log("Server Started On 8080");
-    
+  app.listen(8080, () => {
+    console.log("server started on http://localhost:8080/graphql");
   });
-}
+};
 
 main();
